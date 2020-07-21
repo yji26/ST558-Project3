@@ -81,8 +81,6 @@ shinyServer(function(input, output, session) {
     } else {
       wdbc[0, ]
     }
-    #event_data <- event_data("plotly_click")
-    #wdbc %>% filter((eval(as.symbol(input$scatter_x)) == event_data$x) & (eval(as.symbol(input$scatter_y)) == event_data$y))
   })
   
   #Render PCA biplot
