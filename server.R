@@ -126,4 +126,99 @@ shinyServer(function(input, output, session) {
     ggplotly(a + labs(title = "Principle Component Analysis Biplot"))
   })
   
+  #Train kNN model
+  knn_model_list <- reactive({
+    input$knn_train
+    
+    knn_out <- isolate({
+      if (input$knn_custom_features) {
+        wdbcKnn <- wdbc[, c("diagnosis", input$knn_features), drop = FALSE]
+      } else {
+        wdbcKnn <- wdbc %>% select(-id)
+      }
+      
+      set.seed(input$knn_seed)
+      train <- sample(1:nrow(wdbcKnn), size = nrow(wdbcKnn)*(1-input$knn_test))
+      test <- dplyr::setdiff(1:nrow(wdbcKnn), train)
+      wdbcKnnTrain <- wdbcKnn[train, ]
+      wdbcKnnTest <- wdbcKnn[test, ]
+      
+      trctrl <- trainControl(method = "repeatedcv", number = input$knn_folds, repeats = input$knn_repeats)
+      
+      knn_fit <- train(diagnosis ~ ., 
+                       data = wdbcKnnTrain, 
+                       method = "knn",
+                       trControl = trctrl,
+                       preProcess = c("center", "scale"),
+                       tuneGrid = expand.grid(k = seq(input$knn_slider[[1]], input$knn_slider[[2]])))
+      
+      out_temp <- capture.output(
+        confusionMatrix(
+          predict(knn_fit, newdata = wdbcKnnTest), 
+          wdbcKnnTest$diagnosis
+        ))
+      
+      return(list(wdbcKnnTrain, wdbcKnnTest, knn_fit, out_temp))
+    })
+    
+    knn_out
+  })
+  
+  #Output kNN model results
+  output$knn_results <- renderText({
+    out_temp <- knn_model_list()[[4]]
+    for (i in 1:length(out_temp)) {
+      out_temp[i] <- paste0(out_temp[i], "\n")
+    }
+    out_temp
+  })
+  
+  #Make prediction for kNN model
+  output$knn_pred <- renderText({
+    input$knn_predict_action
+    
+    knn_predict_output <- isolate({
+      knn_userinput <- data.frame("radius_mean" = input$radius_mean_knn, 
+                                  "texture_mean" = input$texture_mean_knn, 
+                                  "perimeter_mean" = input$perimeter_mean_knn, 
+                                  "area_mean" = input$area_mean_knn, 
+                                  "smoothness_mean" = input$smoothness_mean_knn, 
+                                  "compactness_mean" = input$compactness_mean_knn, 
+                                  "concavity_mean" = input$concavity_mean_knn, 
+                                  "concavepoints_mean" = input$concavepoints_mean_knn, 
+                                  "symmetry_mean" = input$symmetry_mean_knn, 
+                                  "fractal_mean" = input$fractal_mean_knn, 
+                                  "radius_se" = input$radius_se_knn, 
+                                  "texture_se" = input$texture_se_knn, 
+                                  "perimeter_se" = input$perimeter_se_knn, 
+                                  "area_se" = input$area_se_knn, 
+                                  "smoothness_se" = input$smoothness_se_knn, 
+                                  "compactness_se" = input$compactness_se_knn, 
+                                  "concavity_se" = input$concavity_se_knn, 
+                                  "concavepoints_se" = input$concavepoints_se_knn, 
+                                  "symmetry_se" = input$symmetry_se_knn, 
+                                  "fractal_se" = input$fractal_se_knn, 
+                                  "radius_worst" = input$radius_worst_knn, 
+                                  "texture_worst" = input$texture_worst_knn, 
+                                  "perimeter_worst" = input$perimeter_worst_knn, 
+                                  "area_worst" = input$area_worst_knn, 
+                                  "smoothness_worst" = input$smoothness_worst_knn, 
+                                  "compactness_worst" = input$compactness_worst_knn, 
+                                  "concavity_worst" = input$concavity_worst_knn, 
+                                  "concavepoints_worst" = input$concavepoints_worst_knn, 
+                                  "symmetry_worst" = input$symmetry_worst_knn, 
+                                  "fractal_worst" = input$fractal_worst_knn)
+      
+      wdbcKnnPred <- predict(knn_model_list()[[3]], newdata = knn_userinput)
+      if (wdbcKnnPred[[1]] == "M") {
+        return("The model prediction is: Malignant")
+      } else {
+        return("The model prediction is: Benign")
+      }
+    })
+    
+    knn_predict_output
+  })
+  
+
 })
