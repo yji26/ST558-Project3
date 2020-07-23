@@ -7,7 +7,9 @@ dashboardPage(
   dashboardSidebar(sidebarMenu(
     menuItem("About", tabName = "about", icon = icon("archive")),
     menuItem("Data Exploration", tabName = "explore", icon = icon("search")),
-    menuItem("Principal Component Analysis", tabName = "pca", icon = icon("eye"))
+    menuItem("Data Summaries", tabName = "summaries", icon = icon("chart-bar", lib = "font-awesome")),
+    menuItem("Principal Component Analysis", tabName = "pca", icon = icon("eye")),
+    menuItem("Predictive Modeling", tabName = "model", icon = icon("chart-line", lib = "font-awesome"))
   )),
   
   dashboardBody(
@@ -23,19 +25,35 @@ dashboardPage(
       ), #End about tab
       
       tabItem(tabName = "explore",
+        column(1,
+               radioButtons("raw_data_input", "Select data:",
+                            c("All Data Points" = "select_all",
+                              "Benign Only" = "select_benign",
+                              "Malignant Only" = "select_malignant"))
+        ),
+        column(11,
+               box(width = NULL, status = "primary",
+                   div(style = 'height:600px; overflow-x: scroll', tableOutput("raw_table"))
+               ),
+               downloadButton("downloadRaw", "Download")
+        )
+      ), #End explore tab
+              
+      tabItem(tabName = "summaries",
         tabsetPanel(
-          tabPanel("Raw Data",
-            box(width = NULL, status = "primary",
-                div(style = 'height:600px; overflow-x: scroll', tableOutput("raw_table"))
+          tabPanel("Summary Table for Numerical Columns",
+            column(1,
+              radioButtons("summary_input", "Select data:",
+                           c("All Data Points" = "select_all",
+                             "Benign Only" = "select_benign",
+                             "Malignant Only" = "select_malignant"))
             ),
-            downloadButton("downloadRaw", "Download")
-          ), #End raw data tab
-          
-          tabPanel("Summary for Numerical Columns",
-            box(width = NULL, status = "primary",
-                div(style = 'height:250px; overflow-x: scroll', tableOutput("summary_table"))
-            ),
-            downloadButton("downloadSummary", "Download")
+            column(11,
+              box(width = NULL, status = "primary",
+                  div(style = 'height:250px; overflow-x: scroll', tableOutput("summary_table"))
+              ),
+              downloadButton("downloadSummary", "Download")
+            )
           ), #End summary tab
           
           tabPanel("Boxplot for Numerical Columns",
@@ -100,7 +118,7 @@ dashboardPage(
             )
           ) #End scatterplot tab
         )
-      ), #End explore tab
+      ), #End summaries tab
       
       tabItem(tabName = "pca",
         column(2,
@@ -112,8 +130,18 @@ dashboardPage(
           conditionalPanel(condition = "input.pca_x == input.pca_y", "X and Y axis values cannot be equal"),
           conditionalPanel(condition = "input.pca_x != input.pca_y", plotlyOutput("biplot", width = "80%", height = "800px"))
         )
-      ) #End pca tab
+      ), #End pca tab
       
+      tabItem(tabName = "model",
+        tabsetPanel(
+          tabPanel("K-Nearest Neighbors"
+          ), #End knn tab
+
+          tabPanel("Random Forest"
+          ) #End rf tab
+        )
+      ) #End modeling tab
+        
     ) #End tabItems
   ) #End dashboardBody
 )

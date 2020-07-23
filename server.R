@@ -24,23 +24,51 @@ shinyServer(function(input, output, session) {
   )
   wdbc$id <- as.character(wdbc$id)
   wdbc$diagnosis <- as.factor(wdbc$diagnosis)
-  #wdbc <- wdbc %>% arrange(diagnosis)
+  
+  #Split into train-test
+  reactive({
+    set.seed(1)
+    train <- sample(1:nrow(wdbc), size = nrow(wdbc)*0.8)
+    test <- dplyr::setdiff(1:nrow(wdbc), train)
+    wdbcTrain <- wdbc[train, ] %>% select(-id)
+    wdbcTest <- wdbc[test, ] %>% select(-id)
+  })
   
   #Render raw data table
-  output$raw_table <- renderTable(wdbc)
+  filteredData <- reactive({
+    if (input$raw_data_input == "select_benign") {
+      wdbc %>% filter(diagnosis == "B")
+    } else if (input$raw_data_input == "select_malignant") {
+      wdbc %>% filter(diagnosis == "M")
+    } else {
+      wdbc
+    }
+  })
+  
+  output$raw_table <- renderTable(filteredData())
   output$downloadRaw <- downloadHandler(
-    filename = "WDBCRawData.csv",
+    filename = "WDBCData.csv",
     content = function(file) {
-      write.csv(wdbc, file, row.names = FALSE)
+      write.csv(filteredData(), file, row.names = FALSE)
     }
   )
   
   #Render summary table
-  output$summary_table <- renderTable(apply(wdbc[, 3:32], 2, summary), rownames = TRUE)
+  filteredSummaryData <- reactive({
+    if (input$summary_input == "select_benign") {
+      wdbc %>% filter(diagnosis == "B")
+    } else if (input$summary_input == "select_malignant") {
+      wdbc %>% filter(diagnosis == "M")
+    } else {
+      wdbc
+    }
+  })
+  
+  output$summary_table <- renderTable(apply(filteredSummaryData()[, 3:32], 2, summary), rownames = TRUE)
   output$downloadSummary <- downloadHandler(
     filename = "WDBCSummaryData.csv",
     content = function(file) {
-      write.csv(apply(wdbc[, 3:32], 2, summary), file, row.names = TRUE)
+      write.csv(apply(filteredSummaryData()[, 3:32], 2, summary), file, row.names = TRUE)
     }
   )
 
