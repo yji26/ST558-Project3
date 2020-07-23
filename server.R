@@ -131,11 +131,7 @@ shinyServer(function(input, output, session) {
     input$knn_train
     
     knn_out <- isolate({
-      if (input$knn_custom_features) {
-        wdbcKnn <- wdbc[, c("diagnosis", input$knn_features), drop = FALSE]
-      } else {
-        wdbcKnn <- wdbc %>% select(-id)
-      }
+      wdbcKnn <- wdbc[, c("diagnosis", input$knn_features), drop = FALSE]
       
       set.seed(input$knn_seed)
       train <- sample(1:nrow(wdbcKnn), size = nrow(wdbcKnn)*(1-input$knn_test))
