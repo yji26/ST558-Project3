@@ -15,6 +15,7 @@ library(ggfortify)
 library(htmlwidgets)
 
 shinyServer(function(input, output, session) {
+  
   #Read in and label the data
   wdbc <- read_csv("wdbc.data", col_names = FALSE)
   colnames(wdbc) <- c("id", "diagnosis", 
@@ -24,15 +25,6 @@ shinyServer(function(input, output, session) {
   )
   wdbc$id <- as.character(wdbc$id)
   wdbc$diagnosis <- as.factor(wdbc$diagnosis)
-  
-  #Split into train-test
-  reactive({
-    set.seed(1)
-    train <- sample(1:nrow(wdbc), size = nrow(wdbc)*0.8)
-    test <- dplyr::setdiff(1:nrow(wdbc), train)
-    wdbcTrain <- wdbc[train, ] %>% select(-id)
-    wdbcTest <- wdbc[test, ] %>% select(-id)
-  })
   
   #Render raw data table
   filteredData <- reactive({
@@ -45,6 +37,7 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  #Download raw data set
   output$raw_table <- renderTable(filteredData())
   output$downloadRaw <- downloadHandler(
     filename = "WDBCData.csv",
@@ -64,6 +57,7 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  #Download summary table data set
   output$summary_table <- renderTable(apply(filteredSummaryData()[, 3:32], 2, summary), rownames = TRUE)
   output$downloadSummary <- downloadHandler(
     filename = "WDBCSummaryData.csv",
@@ -80,6 +74,7 @@ shinyServer(function(input, output, session) {
     g
   })
   
+  #Download boxplot data set
   output$downloadBoxplotData <- downloadHandler(
     filename = "WDBCBoxplotData.csv",
     content = function(file) {
@@ -101,6 +96,26 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  #Download scatterplot data set
+  output$downloadScatterplotData <- downloadHandler(
+    filename = "WDBCScatterplotData.csv",
+    content = function(file) {
+      if (input$color_diag_scatter) {
+        if (input$scatter_x == input$scatter_y) {
+          write.csv(wdbc[, c("diagnosis", input$scatter_x)], file, row.names = FALSE)
+        } else {
+          write.csv(wdbc[, c("diagnosis", input$scatter_x, input$scatter_y)], file, row.names = FALSE)
+        }
+      } else {
+        if (input$scatter_x == input$scatter_y) {
+          write.csv(wdbc[, c(input$scatter_x)], file, row.names = FALSE)
+        } else {
+          write.csv(wdbc[, c(input$scatter_x, input$scatter_y)], file, row.names = FALSE)
+        }
+      }
+    }
+  )
+  
   #Render scatterplot info table based on user click
   output$clickevent <- renderTable({
     if (length(event_data("plotly_click")) > 0) {
@@ -111,8 +126,8 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  #Render PCA biplot
-  output$biplot <- renderPlotly({
+  #Compute PCA biplot data
+  biplotdata <- reactive({
     PCs <- prcomp(wdbc[, 3:32], center = TRUE, scale = TRUE)
     if (input$color_diag_pca) {
       a <- autoplot(PCs, data = wdbc, x = as.numeric(input$pca_x), y = as.numeric(input$pca_y), 
@@ -123,8 +138,23 @@ shinyServer(function(input, output, session) {
                     loadings = TRUE, loadings.colour = 'black', 
                     loadings.label = TRUE, loadings.label.size = 5, loadings.label.colour = 'black')
     }
+    
+    return(a)
+  })
+  
+  #Render PCA biplot
+  output$biplot <- renderPlotly({
+    a <- biplotdata()
     ggplotly(a + labs(title = "Principle Component Analysis Biplot"))
   })
+  
+  #Download PCA biplot data set
+  output$downloadBiplotData <- downloadHandler(
+    filename = "WDBCBiplotData.csv",
+    content = function(file) {
+      write.csv(biplotdata()$data[, 1:34], file, row.names = FALSE)
+    }
+  )
   
   #Train kNN model
   knn_model_list <- reactive({

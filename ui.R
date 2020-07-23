@@ -26,16 +26,17 @@ dashboardPage(
       
       tabItem(tabName = "explore",
         column(1,
-               radioButtons("raw_data_input", "Select data:",
-                            c("All Data Points" = "select_all",
-                              "Benign Only" = "select_benign",
-                              "Malignant Only" = "select_malignant"))
+          radioButtons("raw_data_input", "Select data:",
+                       c("All Data Points" = "select_all",
+                         "Benign Only" = "select_benign",
+                         "Malignant Only" = "select_malignant")
+          )
         ),
         column(11,
-               box(width = NULL, status = "primary",
-                   div(style = 'height:600px; overflow-x: scroll', tableOutput("raw_table"))
-               ),
-               downloadButton("downloadRaw", "Download")
+          box(width = NULL, status = "primary",
+              div(style = 'height:600px; overflow-x: scroll', tableOutput("raw_table"))
+          ),
+          downloadButton("downloadRaw", "Download")
         )
       ), #End explore tab
               
@@ -109,12 +110,13 @@ dashboardPage(
             column(10, 
               plotlyOutput("scatterplot", width = "100%", height = "600px"),
               br(),
-              h4("Click on any point in the plot - its information is displayed below:"),
+              downloadButton("downloadScatterplotData", "Download Data"),
+              h4(strong("Note:"), " Download button for the plot is the camera icon at the top of the plot"),
+              br(),
+              h4("Click on any point in the scatterplot - its full information is displayed below:"),
               box(width = NULL, status = "primary",
                   div(style = 'overflow-x: scroll', tableOutput("clickevent"))
-              ),
-              br(),
-              h4(strong("Note:"), " Download button for the plot is the camera icon at the top of the plot")
+              )
             )
           ) #End scatterplot tab
         )
@@ -128,7 +130,13 @@ dashboardPage(
         ),
         column(10,
           conditionalPanel(condition = "input.pca_x == input.pca_y", "X and Y axis values cannot be equal"),
-          conditionalPanel(condition = "input.pca_x != input.pca_y", plotlyOutput("biplot", width = "80%", height = "800px"))
+          conditionalPanel(condition = "input.pca_x != input.pca_y", 
+            fluidRow(
+              plotlyOutput("biplot", width = "80%", height = "800px"),
+              br(),
+              downloadButton("downloadBiplotData", "Download Data")
+            )
+          )
         )
       ), #End pca tab
       
@@ -190,10 +198,10 @@ dashboardPage(
                   numericInput("knn_seed", "Set seed:", value = 10, min = 0, max = 1000, step = 1),
                   sliderInput("knn_test", "Proportion of data set aside for testing: ", min = 0.01, max = 0.5, value = 0.3),
                   numericInput("knn_folds", "Set Training Cross-Validation folds: ", value = 5, min = 3, max = 10, step = 1),
-                  numericInput("knn_repeats", "Set Training CV repeats: ", value = 3, min = 1, max = 5, step = 1),
+                  numericInput("knn_repeats", "Set Training Cross-Validation repeats: ", value = 3, min = 1, max = 5, step = 1),
                   sliderInput("knn_slider", "Test model for this range of neighbors: ", min = 1, max = 50, value = c(3, 10))
                 )
-              )
+              ) #End fluidRow
             ),
       
             #Model Test Set Performance
