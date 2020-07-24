@@ -160,6 +160,11 @@ shinyServer(function(input, output, session) {
   knn_model_list <- reactive({
     input$knn_train
     
+    progress <- Progress$new(session)
+    on.exit(progress$close())
+    
+    progress$set(message = "Model training is in progress, please wait...")
+    
     knn_out <- isolate({
       wdbcKnn <- wdbc[, c("diagnosis", input$knn_features), drop = FALSE]
       
@@ -202,6 +207,11 @@ shinyServer(function(input, output, session) {
   #Make prediction for kNN model
   output$knn_pred <- renderText({
     input$knn_predict_action
+    
+    progress <- Progress$new(session)
+    on.exit(progress$close())
+    
+    progress$set(message = "Model prediction is being calculated, please wait...")
     
     knn_predict_output <- isolate({
       knn_userinput <- data.frame("radius_mean" = input$radius_mean_knn, 
@@ -246,5 +256,104 @@ shinyServer(function(input, output, session) {
     knn_predict_output
   })
   
-
+  #Train Random Forest model
+  rf_model_list <- reactive({
+    input$rf_train
+    
+    progress <- Progress$new(session)
+    on.exit(progress$close())
+    
+    progress$set(message = "Model training is in progress, please wait...")
+    
+    rf_out <- isolate({
+      wdbcRf <- wdbc[, c("diagnosis", input$rf_features), drop = FALSE]
+      
+      set.seed(input$rf_seed)
+      train <- sample(1:nrow(wdbcRf), size = nrow(wdbcRf)*(1-input$rf_test))
+      test <- dplyr::setdiff(1:nrow(wdbcRf), train)
+      wdbcRfTrain <- wdbcRf[train, ]
+      wdbcRfTest <- wdbcRf[test, ]
+      
+      trctrl <- trainControl(method = "repeatedcv", number = input$rf_folds, repeats = input$rf_repeats)
+      
+      rf_fit <- train(diagnosis ~ ., 
+                      data = wdbcRfTrain, 
+                      method = "rf",
+                      trControl = trctrl,
+                      preProcess = c("center", "scale"),
+                      tuneGrid = expand.grid(mtry = seq(input$rf_slider[[1]], input$rf_slider[[2]])))
+      
+      out_temp <- capture.output(
+        confusionMatrix(
+          predict(rf_fit, newdata = wdbcRfTest), 
+          wdbcRfTest$diagnosis
+        ))
+      
+      return(list(wdbcRfTrain, wdbcRfTest, rf_fit, out_temp))
+    })
+    
+    rf_out
+  })
+  
+  #Output Random Forest model results
+  output$rf_results <- renderText({
+    out_temp <- rf_model_list()[[4]]
+    for (i in 1:length(out_temp)) {
+      out_temp[i] <- paste0(out_temp[i], "\n")
+    }
+    out_temp
+  })
+  
+  #Make prediction for Random Forest model
+  output$rf_pred <- renderText({
+    input$rf_predict_action
+    
+    progress <- Progress$new(session)
+    on.exit(progress$close())
+    
+    progress$set(message = "Model prediction is being calculated, please wait...")
+    
+    rf_predict_output <- isolate({
+      rf_userinput <- data.frame("radius_mean" = input$radius_mean_rf, 
+                                 "texture_mean" = input$texture_mean_rf, 
+                                 "perimeter_mean" = input$perimeter_mean_rf, 
+                                 "area_mean" = input$area_mean_rf, 
+                                 "smoothness_mean" = input$smoothness_mean_rf, 
+                                 "compactness_mean" = input$compactness_mean_rf, 
+                                 "concavity_mean" = input$concavity_mean_rf, 
+                                 "concavepoints_mean" = input$concavepoints_mean_rf, 
+                                 "symmetry_mean" = input$symmetry_mean_rf, 
+                                 "fractal_mean" = input$fractal_mean_rf, 
+                                 "radius_se" = input$radius_se_rf, 
+                                 "texture_se" = input$texture_se_rf, 
+                                 "perimeter_se" = input$perimeter_se_rf, 
+                                 "area_se" = input$area_se_rf, 
+                                 "smoothness_se" = input$smoothness_se_rf, 
+                                 "compactness_se" = input$compactness_se_rf, 
+                                 "concavity_se" = input$concavity_se_rf, 
+                                 "concavepoints_se" = input$concavepoints_se_rf, 
+                                 "symmetry_se" = input$symmetry_se_rf, 
+                                 "fractal_se" = input$fractal_se_rf, 
+                                 "radius_worst" = input$radius_worst_rf, 
+                                 "texture_worst" = input$texture_worst_rf, 
+                                 "perimeter_worst" = input$perimeter_worst_rf, 
+                                 "area_worst" = input$area_worst_rf, 
+                                 "smoothness_worst" = input$smoothness_worst_rf, 
+                                 "compactness_worst" = input$compactness_worst_rf, 
+                                 "concavity_worst" = input$concavity_worst_rf, 
+                                 "concavepoints_worst" = input$concavepoints_worst_rf, 
+                                 "symmetry_worst" = input$symmetry_worst_rf, 
+                                 "fractal_worst" = input$fractal_worst_rf)
+      
+      wdbcRfPred <- predict(rf_model_list()[[3]], newdata = rf_userinput)
+      if (wdbcRfPred[[1]] == "M") {
+        return("The model prediction is: Malignant")
+      } else {
+        return("The model prediction is: Benign")
+      }
+    })
+    
+    rf_predict_output
+  })
+  
 })
