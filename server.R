@@ -145,7 +145,7 @@ shinyServer(function(input, output, session) {
   #Render PCA biplot
   output$biplot <- renderPlotly({
     a <- biplotdata()
-    ggplotly(a + labs(title = "Principle Component Analysis Biplot"))
+    ggplotly(a + labs(title = "Principal Component Analysis Biplot"))
   })
   
   #Download PCA biplot data set

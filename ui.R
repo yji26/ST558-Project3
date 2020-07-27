@@ -2,7 +2,7 @@ library(shiny)
 library(shinydashboard)
 
 dashboardPage(
-  dashboardHeader(title = "My Title"),
+  dashboardHeader(title = "Data Exploration and Modeling Dashboard", titleWidth = 400),
   
   dashboardSidebar(sidebarMenu(
     menuItem("About", tabName = "about", icon = icon("archive")),
@@ -17,10 +17,42 @@ dashboardPage(
       
       tabItem(tabName = "about",
         fluidRow(
-          h1("About Page")
-        ),
-        fluidRow(
-          "Body Text"
+          column(3,
+            box(width = NULL, status = "primary",
+              h2("Dashboard Overview"),
+              "This dashboard provides data exploration, data summary and modeling tools used to analyze a breast cancer diagnosis data set from the University of Wisconsin. The original data set may be downloaded from ",
+              tags$a(href = "https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29", "this link"),
+              " and contains one column for ID, one for diagnosis (the response or target variable), and 30 columns describing the mean, standard error and worst-value measurements for ten numerical features."
+            )
+          ),
+          column(9,
+            box(width = NULL, status = "primary",
+              withMathJax(),
+              h2("Tab Summaries"),
+              h3("Data Exploration Tab"),
+              "This tab outputs the raw data set. User can filter the data set by the response variable value (B for Benign and M for Malignant diagnosis) or choose the unfiltered data set containing all data rows. In addition, there is a Download buttom below that allows the user to download the currently displayed data as a csv file.",
+              br(),
+              h3("Data Summaries Tab"),
+              "These tabs provides some common summaries for the 30 numerical features of the data set.",
+              h4("Numerical Summary Tables"),
+              "Provides the Minimum, 1st Quartile, Median, Mean, 3rd Quartile, and Maximum values of each feature. Like the raw data set, these summaries may be subset by the response variable and downloaded.",
+              br(),
+              h4("Boxplots"),
+              "Compares the boxplots for each feature, subset by the response variable. The user may mouse hover over the plots to display additional boxplot information, as well as download the plot as an image and the underlying data set as a csv.",
+              br(),
+              h4("Scatterplots"),
+              "Plots two user-selected features as a scatterplot. The user may color-code the response variable to better visualize the clustering of benign and malignant diagnoses in relation to the selected features. The user may also left-click on any data point on the scatterplot to display full feature information for that data point below the plot. User may download the plot as an image file and the underlying data set as a csv.",
+              br(),
+              br(),
+              tags$b("Note: "), "All plots are shown using the ", tags$em("plotly"), " package, which enables common features such as zoom, region select and autoscale. The full list of features are shown when hovering over the upper-right corner of each plot.",
+              h3("Principal Component Analysis Tab"),
+              helpText("PCA is used to project the features data onto an orthogonal basis while maximizing the variance of each successive dimension. The first principal component, labeled \\(PC1\\), accounts for the most variance and the last principal component, labeled \\(PC30\\), accounts for the least variance. Since they form an orthogonal basis, it means that \\(PC1 \\bot PC2 \\bot PC3 \\bot ... \\bot PC30\\), and any pair of principal components can be selected as the axes to a biplot. The PCA biplot displays the influence each feature has on a principal component. Users may choose which principal components to plot, and each principal component label displays a percentage figure which indicates the percent of overall variance that component captures. Like with the other plots, user may color-code by the response, download the plot as an image file and the underlying data set as a csv."),
+              h3("Predictive Modeling Tab"),
+              "This tab enables the user to train k-Nearest Neighbors and Random Forest models to predict diagnosis from the 30 features. The user may select any combination of features to put in the model, as well as hyperparameter settings for each model type. Clicking the Train Model button will kick off the training, and after a short duration the UI should return the predicted outcomes of the model in the test data set against their actual outcomes, along with accuracy metrics. If the checkbox for ",
+              tags$b("Use this model for a custom prediction?"),
+              "is selected, the UI will bring up sliders for the picked model features and allow the user to make their own prediction of a diagnosis on custom input data."
+            )
+          )
         )
       ), #End about tab
       
@@ -124,8 +156,8 @@ dashboardPage(
       
       tabItem(tabName = "pca",
         column(2,
-          selectizeInput("pca_x", "X-axis Principle Component", selected = 1, choices = seq(1,30)),
-          selectizeInput("pca_y", "Y-axis Principle Component", selected = 2, choices = seq(1,30)),
+          selectizeInput("pca_x", "X-axis Principal Component", selected = 1, choices = seq(1,30)),
+          selectizeInput("pca_y", "Y-axis Principal Component", selected = 2, choices = seq(1,30)),
           checkboxInput("color_diag_pca", h4("Color-code diagnosis"))
         ),
         column(10,
