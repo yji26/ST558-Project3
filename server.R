@@ -2,17 +2,10 @@ library(shiny)
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
-library(knitr)
-library(DT)
 library(caret)
 library(e1071)
 library(randomForest)
-library(gbm)
-library(rgl)
-library(tree)
 library(plotly)
-library(ggfortify)
-library(htmlwidgets)
 
 shinyServer(function(input, output, session) {
   
