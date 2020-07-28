@@ -7,6 +7,7 @@ library(caret)
 library(e1071)
 library(randomForest)
 library(plotly)
+library(ggfortify)
 
 shinyServer(function(input, output, session) {
   

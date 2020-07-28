@@ -7,6 +7,7 @@ library(caret)
 library(e1071)
 library(randomForest)
 library(plotly)
+library(ggfortify)
 
 dashboardPage(
   dashboardHeader(title = "Data Exploration and Modeling Dashboard", titleWidth = 400),
