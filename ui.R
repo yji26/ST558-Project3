@@ -99,13 +99,10 @@ dashboardPage(
           radioButtons("raw_data_input", "Select data:",
                        c("All Data Points" = "select_all",
                          "Benign Only" = "select_benign",
-                         "Malignant Only" = "select_malignant")
-          )
+                         "Malignant Only" = "select_malignant"))
         ),
         column(11,
-          box(width = NULL, status = "primary",
-              div(style = 'height:600px; overflow-x: scroll', tableOutput("raw_table"))
-          ),
+          box(width = NULL, status = "primary", div(style = 'height:600px; overflow-x: scroll', tableOutput("raw_table"))),
           downloadButton("downloadRaw", "Download")
         )
       ), #End explore tab
@@ -120,9 +117,7 @@ dashboardPage(
                              "Malignant Only" = "select_malignant"))
             ),
             column(11,
-              box(width = NULL, status = "primary",
-                  div(style = 'height:250px; overflow-x: scroll', tableOutput("summary_table"))
-              ),
+              box(width = NULL, status = "primary", div(style = 'height:250px; overflow-x: scroll', tableOutput("summary_table"))),
               downloadButton("downloadSummary", "Download")
             )
           ), #End summary tab
@@ -153,9 +148,7 @@ dashboardPage(
               h4(strong("Note:"), " Download button for the plot is the camera icon at the top of the plot"),
               br(),
               h4("Click on any point in the scatterplot - its full information is displayed below:"),
-              box(width = NULL, status = "primary",
-                  div(style = 'overflow-x: scroll', tableOutput("clickevent"))
-              )
+              box(width = NULL, status = "primary", div(style = 'overflow-x: scroll', tableOutput("clickevent")))
             )
           ) #End scatterplot tab
         )
@@ -228,8 +221,8 @@ dashboardPage(
                 h3("Custom Prediction Using Trained kNN Model"),
                 actionButton("knn_predict_action", "Make Prediction", icon = icon("exclamation", lib = "font-awesome")),
                 h4("Select values for features:"),
-                box(width = NULL, status = "primary",
-                    div(style = 'height:600px; overflow-x: scroll',
+                box(width = NULL, status = "primary", 
+                  div(style = 'height:600px; overflow-x: scroll',
                     conditionalPanel(condition = "input.knn_features.includes('radius_mean')",
                       sliderInput("radius_mean_knn", "Radius (Mean)", min = 0, max = 30, value = 15, step = 0.1)),
                     conditionalPanel(condition = "input.knn_features.includes('texture_mean')",
@@ -348,8 +341,8 @@ dashboardPage(
                 h3("Custom Prediction Using Trained Random Forest Model"),
                 actionButton("rf_predict_action", "Make Prediction", icon = icon("exclamation", lib = "font-awesome")),
                 h4("Select values for features:"),
-                box(width = NULL, status = "primary",
-                    div(style = 'height:600px; overflow-x: scroll', 
+                box(width = NULL, status = "primary", 
+                  div(style = 'height:600px; overflow-x: scroll', 
                     conditionalPanel(condition = "input.rf_features.includes('radius_mean')",
                       sliderInput("radius_mean_rf", "Radius (Mean)", min = 0, max = 30, value = 15, step = 0.1)),
                     conditionalPanel(condition = "input.rf_features.includes('texture_mean')",
