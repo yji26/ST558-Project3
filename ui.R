@@ -1,5 +1,12 @@
 library(shiny)
 library(shinydashboard)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(caret)
+library(e1071)
+library(randomForest)
+library(plotly)
 
 dashboardPage(
   dashboardHeader(title = "Data Exploration and Modeling Dashboard", titleWidth = 400),
