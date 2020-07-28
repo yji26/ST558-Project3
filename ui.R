@@ -142,8 +142,22 @@ dashboardPage(
 
           tabPanel("Scatterplot for Numerical Columns",
             column(2,
-              selectizeInput("scatter_x", "X-axis", choices = colnames(wdbc)[3:32]),
-              selectizeInput("scatter_y", "Y-axis", choices = colnames(wdbc)[3:32]),
+              selectizeInput("scatter_x", "X-axis", choices = c("radius_mean", "texture_mean", "perimeter_mean", "area_mean", "smoothness_mean", 
+                                                                "compactness_mean", "concavity_mean", "concavepoints_mean", "symmetry_mean", "fractal_mean",
+                                                                "radius_se", "texture_se", "perimeter_se", "area_se", "smoothness_se", 
+                                                                "compactness_se", "concavity_se", "concavepoints_se", "symmetry_se", "fractal_se",
+                                                                "radius_worst", "texture_worst", "perimeter_worst", "area_worst", "smoothness_worst", 
+                                                                "compactness_worst", "concavity_worst", "concavepoints_worst", "symmetry_worst", "fractal_worst"
+                                                               )
+              ),
+              selectizeInput("scatter_y", "Y-axis", choices = c("radius_mean", "texture_mean", "perimeter_mean", "area_mean", "smoothness_mean", 
+                                                                "compactness_mean", "concavity_mean", "concavepoints_mean", "symmetry_mean", "fractal_mean",
+                                                                "radius_se", "texture_se", "perimeter_se", "area_se", "smoothness_se", 
+                                                                "compactness_se", "concavity_se", "concavepoints_se", "symmetry_se", "fractal_se",
+                                                                "radius_worst", "texture_worst", "perimeter_worst", "area_worst", "smoothness_worst", 
+                                                                "compactness_worst", "concavity_worst", "concavepoints_worst", "symmetry_worst", "fractal_worst"
+                                                               )
+              ),
               checkboxInput("color_diag_scatter", h4("Color-code diagnosis"))
             ),
             column(10, 
