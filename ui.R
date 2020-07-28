@@ -9,6 +9,37 @@ library(randomForest)
 library(plotly)
 library(ggfortify)
 
+features <- c("Radius (Mean)" = "radius_mean",
+              "Texture (Mean)" = "texture_mean",
+              "Perimeter (Mean)" = "perimeter_mean",
+              "Area (Mean)" = "area_mean",
+              "Smoothness (Mean)" = "smoothness_mean",
+              "Compactness (Mean)" = "compactness_mean",
+              "Concavity (Mean)" = "concavity_mean",
+              "Concave Points (Mean)" = "concavepoints_mean",
+              "Symmetry (Mean)" = "symmetry_mean",
+              "Fractal Dimension (Mean)" = "fractal_mean",
+              "Radius (Standard Error)" = "radius_se",
+              "Texture (Standard Error)" = "texture_se",
+              "Perimeter (Standard Error)" = "perimeter_se",
+              "Area (Standard Error)" = "area_se",
+              "Smoothness (Standard Error)" = "smoothness_se",
+              "Compactness (Standard Error)" = "compactness_se",
+              "Concavity (Standard Error)" = "concavity_se",
+              "Concave Points (Standard Error)" = "concavepoints_se",
+              "Symmetry (Standard Error)" = "symmetry_se",
+              "Fractal Dimension (Standard Error)" = "fractal_se",
+              "Radius (Worst)" = "radius_worst",
+              "Texture (Worst)" = "texture_worst",
+              "Perimeter (Worst)" = "perimeter_worst",
+              "Area (Worst)" = "area_worst",
+              "Smoothness (Worst)" = "smoothness_worst",
+              "Compactness (Worst)" = "compactness_worst",
+              "Concavity (Worst)" = "concavity_worst",
+              "Concave Points (Worst)" = "concavepoints_worst",
+              "Symmetry (Worst)" = "symmetry_worst",
+              "Fractal Dimension (Worst)" = "fractal_worst")
+
 dashboardPage(
   dashboardHeader(title = "Data Exploration and Modeling Dashboard", titleWidth = 400),
   
@@ -22,7 +53,6 @@ dashboardPage(
   
   dashboardBody(
     tabItems(
-      
       tabItem(tabName = "about",
         fluidRow(
           column(3,
@@ -99,38 +129,7 @@ dashboardPage(
           
           tabPanel("Boxplot for Numerical Columns",
             column(2,
-              radioButtons("box_input", "Column:",
-                           c("Radius (Mean)" = "radius_mean",
-                             "Texture (Mean)" = "texture_mean",
-                             "Perimeter (Mean)" = "perimeter_mean",
-                             "Area (Mean)" = "area_mean",
-                             "Smoothness (Mean)" = "smoothness_mean",
-                             "Compactness (Mean)" = "compactness_mean",
-                             "Concavity (Mean)" = "concavity_mean",
-                             "Concave Points (Mean)" = "concavepoints_mean",
-                             "Symmetry (Mean)" = "symmetry_mean",
-                             "Fractal Dimension (Mean)" = "fractal_mean",
-                             "Radius (Standard Error)" = "radius_se",
-                             "Texture (Standard Error)" = "texture_se",
-                             "Perimeter (Standard Error)" = "perimeter_se",
-                             "Area (Standard Error)" = "area_se",
-                             "Smoothness (Standard Error)" = "smoothness_se",
-                             "Compactness (Standard Error)" = "compactness_se",
-                             "Concavity (Standard Error)" = "concavity_se",
-                             "Concave Points (Standard Error)" = "concavepoints_se",
-                             "Symmetry (Standard Error)" = "symmetry_se",
-                             "Fractal Dimension (Standard Error)" = "fractal_se",
-                             "Radius (Worst)" = "radius_worst",
-                             "Texture (Worst)" = "texture_worst",
-                             "Perimeter (Worst)" = "perimeter_worst",
-                             "Area (Worst)" = "area_worst",
-                             "Smoothness (Worst)" = "smoothness_worst",
-                             "Compactness (Worst)" = "compactness_worst",
-                             "Concavity (Worst)" = "concavity_worst",
-                             "Concave Points (Worst)" = "concavepoints_worst",
-                             "Symmetry (Worst)" = "symmetry_worst",
-                             "Fractal Dimension (Worst)" = "fractal_worst")
-              )
+              radioButtons("box_input", "Column:", choices = features)
             ),
             column(10,
               plotlyOutput("boxplot", width = "60%", height = "700px"),
@@ -143,22 +142,8 @@ dashboardPage(
 
           tabPanel("Scatterplot for Numerical Columns",
             column(2,
-              selectizeInput("scatter_x", "X-axis", choices = c("radius_mean", "texture_mean", "perimeter_mean", "area_mean", "smoothness_mean", 
-                                                                "compactness_mean", "concavity_mean", "concavepoints_mean", "symmetry_mean", "fractal_mean",
-                                                                "radius_se", "texture_se", "perimeter_se", "area_se", "smoothness_se", 
-                                                                "compactness_se", "concavity_se", "concavepoints_se", "symmetry_se", "fractal_se",
-                                                                "radius_worst", "texture_worst", "perimeter_worst", "area_worst", "smoothness_worst", 
-                                                                "compactness_worst", "concavity_worst", "concavepoints_worst", "symmetry_worst", "fractal_worst"
-                                                               )
-              ),
-              selectizeInput("scatter_y", "Y-axis", choices = c("radius_mean", "texture_mean", "perimeter_mean", "area_mean", "smoothness_mean", 
-                                                                "compactness_mean", "concavity_mean", "concavepoints_mean", "symmetry_mean", "fractal_mean",
-                                                                "radius_se", "texture_se", "perimeter_se", "area_se", "smoothness_se", 
-                                                                "compactness_se", "concavity_se", "concavepoints_se", "symmetry_se", "fractal_se",
-                                                                "radius_worst", "texture_worst", "perimeter_worst", "area_worst", "smoothness_worst", 
-                                                                "compactness_worst", "concavity_worst", "concavepoints_worst", "symmetry_worst", "fractal_worst"
-                                                               )
-              ),
+              selectizeInput("scatter_x", "X-axis", choices = features),
+              selectizeInput("scatter_y", "Y-axis", choices = features),
               checkboxInput("color_diag_scatter", h4("Color-code diagnosis"))
             ),
             column(10, 
@@ -208,37 +193,7 @@ dashboardPage(
               fluidRow(
                 column(6,
                   h4("Feature Selection"),
-                  checkboxGroupInput("knn_features", label = NULL,
-                                     choices = c("Radius (Mean)" = "radius_mean",
-                                                 "Texture (Mean)" = "texture_mean",
-                                                 "Perimeter (Mean)" = "perimeter_mean",
-                                                 "Area (Mean)" = "area_mean",
-                                                 "Smoothness (Mean)" = "smoothness_mean",
-                                                 "Compactness (Mean)" = "compactness_mean",
-                                                 "Concavity (Mean)" = "concavity_mean",
-                                                 "Concave Points (Mean)" = "concavepoints_mean",
-                                                 "Symmetry (Mean)" = "symmetry_mean",
-                                                 "Fractal Dimension (Mean)" = "fractal_mean",
-                                                 "Radius (Standard Error)" = "radius_se",
-                                                 "Texture (Standard Error)" = "texture_se",
-                                                 "Perimeter (Standard Error)" = "perimeter_se",
-                                                 "Area (Standard Error)" = "area_se",
-                                                 "Smoothness (Standard Error)" = "smoothness_se",
-                                                 "Compactness (Standard Error)" = "compactness_se",
-                                                 "Concavity (Standard Error)" = "concavity_se",
-                                                 "Concave Points (Standard Error)" = "concavepoints_se",
-                                                 "Symmetry (Standard Error)" = "symmetry_se",
-                                                 "Fractal Dimension (Standard Error)" = "fractal_se",
-                                                 "Radius (Worst)" = "radius_worst",
-                                                 "Texture (Worst)" = "texture_worst",
-                                                 "Perimeter (Worst)" = "perimeter_worst",
-                                                 "Area (Worst)" = "area_worst",
-                                                 "Smoothness (Worst)" = "smoothness_worst",
-                                                 "Compactness (Worst)" = "compactness_worst",
-                                                 "Concavity (Worst)" = "concavity_worst",
-                                                 "Concave Points (Worst)" = "concavepoints_worst",
-                                                 "Symmetry (Worst)" = "symmetry_worst",
-                                                 "Fractal Dimension (Worst)" = "fractal_worst"),
+                  checkboxGroupInput("knn_features", label = NULL, choices = features,
                                      selected = c("radius_mean", "texture_mean", "perimeter_mean", "area_mean", "smoothness_mean", 
                                                   "compactness_mean", "concavity_mean", "concavepoints_mean", "symmetry_mean", "fractal_mean", 
                                                   "radius_se", "texture_se", "perimeter_se", "area_se", "smoothness_se", 
@@ -358,44 +313,14 @@ dashboardPage(
               fluidRow(
                 column(6,
                   h4("Feature Selection"),
-                  checkboxGroupInput("rf_features", label = NULL,
-                                     choices = c("Radius (Mean)" = "radius_mean",
-                                                 "Texture (Mean)" = "texture_mean",
-                                                 "Perimeter (Mean)" = "perimeter_mean",
-                                                 "Area (Mean)" = "area_mean",
-                                                 "Smoothness (Mean)" = "smoothness_mean",
-                                                 "Compactness (Mean)" = "compactness_mean",
-                                                 "Concavity (Mean)" = "concavity_mean",
-                                                 "Concave Points (Mean)" = "concavepoints_mean",
-                                                 "Symmetry (Mean)" = "symmetry_mean",
-                                                 "Fractal Dimension (Mean)" = "fractal_mean",
-                                                 "Radius (Standard Error)" = "radius_se",
-                                                 "Texture (Standard Error)" = "texture_se",
-                                                 "Perimeter (Standard Error)" = "perimeter_se",
-                                                 "Area (Standard Error)" = "area_se",
-                                                 "Smoothness (Standard Error)" = "smoothness_se",
-                                                 "Compactness (Standard Error)" = "compactness_se",
-                                                 "Concavity (Standard Error)" = "concavity_se",
-                                                 "Concave Points (Standard Error)" = "concavepoints_se",
-                                                 "Symmetry (Standard Error)" = "symmetry_se",
-                                                 "Fractal Dimension (Standard Error)" = "fractal_se",
-                                                 "Radius (Worst)" = "radius_worst",
-                                                 "Texture (Worst)" = "texture_worst",
-                                                 "Perimeter (Worst)" = "perimeter_worst",
-                                                 "Area (Worst)" = "area_worst",
-                                                 "Smoothness (Worst)" = "smoothness_worst",
-                                                 "Compactness (Worst)" = "compactness_worst",
-                                                 "Concavity (Worst)" = "concavity_worst",
-                                                 "Concave Points (Worst)" = "concavepoints_worst",
-                                                 "Symmetry (Worst)" = "symmetry_worst",
-                                                 "Fractal Dimension (Worst)" = "fractal_worst"),
-                                    selected = c("radius_mean", "texture_mean", "perimeter_mean", "area_mean", "smoothness_mean", 
-                                                 "compactness_mean", "concavity_mean", "concavepoints_mean", "symmetry_mean", "fractal_mean", 
-                                                 "radius_se", "texture_se", "perimeter_se", "area_se", "smoothness_se", 
-                                                 "compactness_se", "concavity_se", "concavepoints_se", "symmetry_se", "fractal_se", 
-                                                 "radius_worst", "texture_worst", "perimeter_worst", "area_worst", "smoothness_worst", 
-                                                 "compactness_worst", "concavity_worst", "concavepoints_worst", "symmetry_worst", "fractal_worst"),
-                                    inline = FALSE)
+                  checkboxGroupInput("rf_features", label = NULL, choices = features,
+                                     selected = c("radius_mean", "texture_mean", "perimeter_mean", "area_mean", "smoothness_mean", 
+                                                  "compactness_mean", "concavity_mean", "concavepoints_mean", "symmetry_mean", "fractal_mean", 
+                                                  "radius_se", "texture_se", "perimeter_se", "area_se", "smoothness_se", 
+                                                  "compactness_se", "concavity_se", "concavepoints_se", "symmetry_se", "fractal_se", 
+                                                  "radius_worst", "texture_worst", "perimeter_worst", "area_worst", "smoothness_worst", 
+                                                  "compactness_worst", "concavity_worst", "concavepoints_worst", "symmetry_worst", "fractal_worst"),
+                                     inline = FALSE)
                 ),
                 column(6,
                   h4("Hyperparameter Settings"),
@@ -495,10 +420,8 @@ dashboardPage(
               conditionalPanel(condition = "input.rf_predict_action", h3(textOutput("rf_pred")))
             )
           ) #End rf tab
-          
         )
       ) #End modeling tab
-        
     ) #End tabItems
   ) #End dashboardBody
 )
