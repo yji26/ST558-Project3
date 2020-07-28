@@ -10,7 +10,7 @@ library(plotly)
 shinyServer(function(input, output, session) {
   
   #Read in and label the data
-  wdbc <- read_csv("wdbc.data", col_names = FALSE)
+  wdbc <- read_csv("./wdbc.data", col_names = FALSE)
   colnames(wdbc) <- c("id", "diagnosis", 
                       "radius_mean", "texture_mean", "perimeter_mean", "area_mean", "smoothness_mean", "compactness_mean", "concavity_mean", "concavepoints_mean", "symmetry_mean", "fractal_mean",
                       "radius_se", "texture_se", "perimeter_se", "area_se", "smoothness_se", "compactness_se", "concavity_se", "concavepoints_se", "symmetry_se", "fractal_se",
